@@ -1,18 +1,15 @@
 package com.example.assignmentjava;
 
-
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.sql.ResultSet;
@@ -75,13 +72,18 @@ public class MainApp extends Application {
         barChart.getData().addAll(goalsSeries, assistsSeries);
         root.setCenter(barChart);
 
-        // Button to switch scenes
-        Button switchButton = new Button("Show Table");
-        switchButton.setOnAction(e -> primaryStage.setScene(createTableScene()));
-        root.setBottom(switchButton);
+        // Navigation buttons
+        HBox bottomButtons = new HBox(10);
+        Button switchToTableButton = new Button("Show Table");
+        switchToTableButton.setOnAction(e -> primaryStage.setScene(createTableScene()));
+        bottomButtons.getChildren().add(switchToTableButton);
+        Button switchToPieChartButton = new Button("Show Pie Chart");
+        switchToPieChartButton.setOnAction(e -> primaryStage.setScene(createPieChartScene()));
+        bottomButtons.getChildren().add(switchToPieChartButton);
+        root.setBottom(bottomButtons);
 
         Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/com/example/assignmentjava/styles.css").toExternalForm());
+        scene.getStylesheets().add("file:/C:/Users/USUARIO/Documents/assignmentJava/src/main/resources/com/example/assignmentjava/styles.css");
         return scene;
     }
 
@@ -113,14 +115,57 @@ public class MainApp extends Application {
             e.printStackTrace();
         }
 
-        // Button to switch scenes
-        Button switchButton = new Button("Show Chart");
-        switchButton.setOnAction(e -> primaryStage.setScene(createChartScene()));
-        root.setBottom(switchButton);
+        // Navigation buttons
+        HBox bottomButtons = new HBox(10);
+        Button switchToChartButton = new Button("Show Chart");
+        switchToChartButton.setOnAction(e -> primaryStage.setScene(createChartScene()));
+        bottomButtons.getChildren().add(switchToChartButton);
+        Button switchToPieChartButton = new Button("Show Pie Chart");
+        switchToPieChartButton.setOnAction(e -> primaryStage.setScene(createPieChartScene()));
+        bottomButtons.getChildren().add(switchToPieChartButton);
+        root.setBottom(bottomButtons);
 
         root.setCenter(tableView);
         Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/com/example/assignmentjava/styles.css").toExternalForm());
+        scene.getStylesheets().add("file:/C:/Users/USUARIO/Documents/assignmentJava/src/main/resources/com/example/assignmentjava/styles.css");
+        return scene;
+    }
+
+    private Scene createPieChartScene() {
+        BorderPane root = new BorderPane();
+
+        PieChart pieChart = new PieChart();
+        pieChart.setTitle("Goals and Assists by Player and Season");
+
+        // Fetch data from the database
+        ResultSet rs = DatabaseUtil.fetchData("SELECT * FROM football_statistics");
+        try {
+            while (rs.next()) {
+                String playerSeason = rs.getString("player") + " (" + rs.getInt("season") + ")";
+                int goals = rs.getInt("goals");
+                int assists = rs.getInt("assists");
+
+                pieChart.getData().add(new PieChart.Data(playerSeason + " - Goals: " + goals, goals));
+                pieChart.getData().add(new PieChart.Data(playerSeason + " - Assists: " + assists, assists));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        root.setCenter(pieChart);
+
+        // Navigation buttons
+        HBox bottomButtons = new HBox(10);
+        Button switchToChartButton = new Button("Show Chart");
+        switchToChartButton.setOnAction(e -> primaryStage.setScene(createChartScene()));
+        bottomButtons.getChildren().add(switchToChartButton);
+        Button switchToTableButton = new Button("Show Table");
+        switchToTableButton.setOnAction(e -> primaryStage.setScene(createTableScene()));
+        bottomButtons.getChildren().add(switchToTableButton);
+        root.setBottom(bottomButtons);
+
+        Scene scene = new Scene(root, 800, 600);
+        scene.getStylesheets().add("file:/C:/Users/USUARIO/Documents/assignmentJava/src/main/resources/com/example/assignmentjava/styles.css");
         return scene;
     }
 
@@ -128,3 +173,4 @@ public class MainApp extends Application {
         launch(args);
     }
 }
+
